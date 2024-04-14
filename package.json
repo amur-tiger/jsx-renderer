@@ -4,6 +4,14 @@
   "author": "Arne 'TigeR' Linck",
   "description": "Reactive JSX rendering using signals",
   "license": "MIT",
+  "homepage": "https://github.com/amur-tiger/jsx-renderer",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amur-tiger/jsx-renderer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/amur-tiger/jsx-renderer/issues"
+  },
   "type": "module",
   "keywords": [
     "JSX",
