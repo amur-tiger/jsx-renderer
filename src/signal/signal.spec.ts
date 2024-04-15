@@ -99,4 +99,16 @@ describe(compute, () => {
     tick();
     expect(data.value).toBe(4);
   });
+
+  it("should not update if value is same", () => {
+    const signal = createSignal(1);
+    const data = compute(() => signal.value + 2, {
+      equals: (previous, next) => previous % 2 === next % 2,
+    });
+
+    signal.value = 3;
+
+    tick();
+    expect(data.value).toBe(3);
+  });
 });
