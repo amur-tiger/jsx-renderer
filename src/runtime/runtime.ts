@@ -1,5 +1,5 @@
 import { scoped } from "../signal";
-import { Fragment } from "./jsx-runtime";
+import { Fragment, replaceFragment } from "./fragment";
 
 export function render(render: () => JSX.Children): JSX.Element {
   let element = scoped(
@@ -9,7 +9,7 @@ export function render(render: () => JSX.Children): JSX.Element {
       }),
     {
       onChange: (next) => {
-        Fragment.replace(element, next);
+        replaceFragment(element, next);
         element = next;
       },
     },

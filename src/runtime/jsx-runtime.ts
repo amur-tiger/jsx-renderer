@@ -127,42 +127,4 @@ export const svgTagNames = [
   "title",
 ];
 
-const fragmentRegister = new WeakMap<DocumentFragment, ChildNode[]>();
-
-interface FragmentProps {
-  children: JSX.Children;
-}
-
-export const Fragment = Object.assign(
-  function Fragment({ children }: FragmentProps) {
-    const element = document.createDocumentFragment();
-
-    for (const child of toChildArray(children)) {
-      if (child != null && typeof child !== "boolean") {
-        element.append(child as never);
-      }
-    }
-
-    if (element.childNodes.length === 0) {
-      element.append(document.createComment("fragment"));
-    }
-
-    fragmentRegister.set(element, Array.from(element.childNodes));
-
-    return element;
-  },
-  {
-    replace(fragment: DocumentFragment, next: DocumentFragment) {
-      const list = fragmentRegister.get(fragment);
-      if (list == null || list.length === 0) {
-        throw new Error("Given fragment does not exist or is empty.");
-      }
-
-      for (let i = 1; i < list.length; i++) {
-        list[i].remove();
-      }
-
-      list[0].replaceWith(next);
-    },
-  },
-);
+export { Fragment, type FragmentProps } from "./fragment";
