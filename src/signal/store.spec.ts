@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { tick } from "./scope";
+import { ReadonlySignal, Signal } from "./signal";
 import { createStore } from "./store";
-import { ReadonlySignal } from "./signal";
 
 describe(createStore, () => {
   it("should save a value", () => {
@@ -100,6 +100,44 @@ describe(createStore, () => {
 
     tick();
     expect(result.value).toBe(3);
+  });
+
+  it("should view property", () => {
+    const store = createStore(
+      {
+        counter: 1,
+      },
+      {
+        get({ prop }) {
+          return prop("counter");
+        },
+      },
+    );
+
+    const result = store.get();
+
+    expect(result).toBeInstanceOf(Signal);
+    expect(result.value).toBe(1);
+  });
+
+  it("should update view property value", () => {
+    const store = createStore(
+      {
+        counter: 1,
+      },
+      {
+        get({ prop }) {
+          return prop("counter");
+        },
+      },
+    );
+
+    const result = store.get();
+    result.value = 3;
+
+    tick();
+    expect(result.value).toBe(3);
+    expect(store.value).toStrictEqual({ counter: 3 });
   });
 
   it("should apply equals function to store", () => {

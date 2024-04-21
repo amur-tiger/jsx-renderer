@@ -1,4 +1,4 @@
-import { getCurrentScope, scoped } from "./scope";
+import { getCurrentScope, listen, scoped } from "./scope";
 
 export interface SignalEventMap<T = unknown> {
   change: SignalChangeEvent<T>;
@@ -8,7 +8,6 @@ export class SignalChangeEvent<T> extends Event {
   constructor(
     readonly oldValue: T,
     readonly newValue: T,
-    readonly isInternal: boolean = false,
   ) {
     super("change");
   }
@@ -118,6 +117,54 @@ export class Signal<T> extends ReadonlySignal<T> {
    */
   public set value(value: T) {
     this.update(value);
+  }
+
+  /**
+   * View of a subset of this signal value. Changes of the parent are reflected in
+   * the resulting view, and changes to the view are reflected to the parent.
+   * @param select
+   * @param update
+   * @param options
+   */
+  public view<R>(
+    select: (parent: T) => R,
+    update: (parent: T, value: R) => T,
+    options?: SignalOptions<R>,
+  ): Signal<R> {
+    let isInternal = false;
+    const signal = new Signal(select(this.currentValue), options);
+
+    // if parent updates, update child
+    listen(this, "change", (event) => {
+      if (isInternal) {
+        // do not update if change was caused by child update
+        return;
+      }
+
+      try {
+        isInternal = true;
+        signal.update(select(event.newValue));
+      } finally {
+        isInternal = false;
+      }
+    });
+
+    // if child updates, update parent
+    listen(signal, "change", (event) => {
+      if (isInternal) {
+        // do not update if change was caused by parent
+        return;
+      }
+
+      try {
+        isInternal = true;
+        this.update(update(this.currentValue, event.newValue));
+      } finally {
+        isInternal = false;
+      }
+    });
+
+    return signal;
   }
 }
 

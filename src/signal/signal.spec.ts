@@ -79,6 +79,43 @@ describe(createSignal, () => {
       expect(onChange).not.toHaveBeenCalled();
     });
   });
+
+  describe("view", () => {
+    it("should view the selected property", () => {
+      const data = createSignal({ prop: "A" });
+      const view = data.view(
+        (d) => d.prop,
+        (d, v) => ({ ...d, prop: v }),
+      );
+
+      expect(view.value).toBe("A");
+    });
+
+    it("should set the value", () => {
+      const data = createSignal({ prop: "A" });
+      const view = data.view(
+        (d) => d.prop,
+        (d, v) => ({ ...d, prop: v }),
+      );
+
+      view.value = "B";
+
+      expect(view.value).toBe("B");
+      expect(data.value).toStrictEqual({ prop: "B" });
+    });
+
+    it("should reflect changes to the parent", () => {
+      const data = createSignal({ prop: "A" });
+      const view = data.view(
+        (d) => d.prop,
+        (d, v) => ({ ...d, prop: v }),
+      );
+
+      data.value = { prop: "C" };
+
+      expect(view.value).toBe("C");
+    });
+  });
 });
 
 describe(compute, () => {

@@ -15,6 +15,17 @@ interface ActionOperations<T> {
     callback: (state: T) => R,
     opts?: ComputeOptions<R>,
   ): ReadonlySignal<R>;
+
+  prop<K extends keyof T>(
+    property: K,
+    opts?: SignalOptions<T[K]>,
+  ): Signal<T[K]>;
+
+  view<R>(
+    select: (state: T) => R,
+    update: (state: T, value: R) => T,
+    opts?: SignalOptions<R>,
+  ): Signal<R>;
 }
 
 type ActionDefinitions<T> = Record<
@@ -52,6 +63,13 @@ export function createStore<T, A extends ActionDefinitions<T>>(
     },
     compute: (callback, opts) =>
       ReadonlySignal.fromCompute(() => callback(signal.value), opts),
+    prop: (property, opts) =>
+      signal.view(
+        (data) => data[property],
+        (data, value) => ({ ...data, [property]: value }),
+        opts,
+      ),
+    view: (compute, update, opts) => signal.view(compute, update, opts),
   };
 
   return Object.assign(
