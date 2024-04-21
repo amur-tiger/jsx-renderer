@@ -39,7 +39,7 @@ type Actions<A> = {
     : never;
 };
 
-type Store<T, A> = Signal<T> & Actions<A>;
+export type Store<T, A> = Signal<T> & Actions<A>;
 
 export function createStore<T, A extends ActionDefinitions<T>>(
   initial: T,
